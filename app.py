@@ -146,37 +146,21 @@ elif selected_model == "Single Product Smart Scan":
     if image:
         # If an image is captured or uploaded, process it
         image = image.convert('RGB')
-        
-        # Define bounding box positions for brand and weight
-        width, height = image.size
-        brand_box_top, brand_box_bottom = int(0.05 * height), int(0.35 * height)
-        weight_box_top, weight_box_bottom = int(0.55 * height), int(0.95 * height)
-        
         image_np = np.array(image)
         
-        # Crop the image for brand and weight regions
-        cropped_brand_image = image_np[brand_box_top:brand_box_bottom, :]
-        cropped_weight_image = image_np[weight_box_top:weight_box_bottom, :]
-        
-        # Use PaddleOCR for text recognition
-        brand_res = ocr.ocr(cropped_brand_image, cls=True)
-        weight_res = ocr.ocr(cropped_weight_image, cls=True)
-        
-        # Extract text from OCR results
-        brand_text = " ".join([line[1][0] for line in brand_res[0]]) if brand_res else ""
-        weight_text = " ".join([line[1][0] for line in weight_res[0]]) if weight_res else ""
-        
-        combined_res = brand_text + " " + weight_text
+        # Use OCR to scan the image for brand and weight
+        ocr_result = ocr.ocr(image_np, cls=True)
+        combined_text = " ".join([line[1][0] for line in ocr_result[0]]) if ocr_result else ""
         
         # Define the list of brand names
         brands = ["Bikaji", "Good Day", "Haldiram", "MAGGI", "KitKat", "Kissan", "Del Monte"]
         
         # Extract brand and weight information using regex
         brand_pattern = re.compile(r'|'.join(brands), re.IGNORECASE)
-        brand_match = brand_pattern.search(combined_res)
+        brand_match = brand_pattern.search(combined_text)
         brand_name = brand_match.group(0) if brand_match else 'Brand not found'
         
-        weight_match = re.search(r'NET (?:WEIGHT|WT|QUANTITY|Wt):?\s*([\d.]+)\s*(kg|g)', combined_res, re.IGNORECASE)
+        weight_match = re.search(r'NET (?:WEIGHT|WT|QUANTITY|Wt):?\s*([\d.]+)\s*(kg|g)', combined_text, re.IGNORECASE)
         net_weight = f"{weight_match.group(1)} {weight_match.group(2)}" if weight_match else 'Net Weight not found'
         
         # Display results
