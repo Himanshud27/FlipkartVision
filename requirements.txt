@@ -1,9 +1,7 @@
-streamlit
-Pillow
-numpy
-paddlepaddle
-keras
-re
-tempfile
-datetime
-paddleocr
+streamlit==1.19.0
+Pillow==8.4.0
+numpy==1.21.2
+paddlepaddle==2.6.2
+keras==2.7.0
+datetime==4.3
+paddleocr==2.6.1
