@@ -2,6 +2,7 @@ streamlit
 pillow
 numpy
 paddleocr
+paddlepaddle
 tensorflow
 h5py
 regex
