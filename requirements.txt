@@ -1,6 +1,6 @@
 streamlit==1.19.0
 Pillow==8.4.0
-numpy==1.21.2
+numpy==1.3.0
 paddlepaddle==2.6.2
 keras==2.7.0
 datetime==4.3
