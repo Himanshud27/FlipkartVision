@@ -60,7 +60,7 @@ def extract_brand_weight(image_np, brands):
     return results
 
 # Streamlit App
-st.title("Integrated App")
+st.title("Flipkart Vision")
 st.sidebar.title("Model Selection")
 models = ["Multiple Product Smart Scan", "Single Product Smart Scan", "Fruit Vision"]
 selected_model = st.sidebar.selectbox("Select a Model:", models)
