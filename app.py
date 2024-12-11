@@ -148,31 +148,50 @@ elif selected_model == "Single Product Smart Scan":
         image = image.convert('RGB')
         image_np = np.array(image)
         
-        # Use OCR to scan the image for brand and weight
-        ocr_result = ocr.ocr(image_np, cls=True)
-        combined_text = " ".join([line[1][0] for line in ocr_result[0]]) if ocr_result else ""
-        
-        # Define the list of brand names
-        brands = ["Bikaji", "Good Day", "Haldiram", "MAGGI", "KitKat", "Kissan", "Del Monte"]
-        
-        # Extract brand and weight information using regex
+        # Dynamically determine bounding boxes based on image dimensions
+        width, height = image.size
+        brand_box_top, brand_box_bottom = int(0.05 * height), int(0.35 * height)  # Approx 5% to 35% of height
+        weight_box_top, weight_box_bottom = int(0.55 * height), int(0.95 * height)  # Approx 55% to 95% of height
+
+        # Crop the images for brand and weight
+        cropped_brand_image = image_np[brand_box_top:brand_box_bottom, :]
+        cropped_weight_image = image_np[weight_box_top:weight_box_bottom, :]
+
+        # Use PaddleOCR to extract text
+        brand_res = ocr.ocr(cropped_brand_image, cls=True)
+        weight_res = ocr.ocr(cropped_weight_image, cls=True)
+
+        # Extract text from the results
+        brand_text = " ".join([line[1][0] for line in brand_res[0]]) if brand_res else ""
+        weight_text = " ".join([line[1][0] for line in weight_res[0]]) if weight_res else ""
+
+        # Extract brand names with case-insensitive matching
+        brands = ["Bikaji", "Good Day", "Haldiram", "PERK Mini Treats", "MAGGI", "KitKat","Kissan","Del Monte"]
         brand_pattern = re.compile(r'|'.join(brands), re.IGNORECASE)
-        brand_match = brand_pattern.search(combined_text)
+        brand_match = brand_pattern.search(brand_text)
         brand_name = brand_match.group(0) if brand_match else 'Brand not found'
-        
-        weight_match = re.search(r'NET (?:WEIGHT|WT|QUANTITY|Wt):?\s*([\d.]+)\s*(kg|g)', combined_text, re.IGNORECASE)
+
+        # Extract net weight
+        combined_res = brand_text + " " + weight_text
+        weight_match = re.search(r'NET (?:WEIGHT|WT|QUANTITY|Wt):?\s*([\d.]+)\s*(kg|g)', combined_res, re.IGNORECASE)
         net_weight = f"{weight_match.group(1)} {weight_match.group(2)}" if weight_match else 'Net Weight not found'
-        
+
         # Display results
+        st.write("**Extracted Information:**")
         st.write(f"Brand Name: {brand_name}")
         st.write(f"Net Weight: {net_weight}")
-        
         result_str = f"Brand Name: {brand_name}\nNet Weight: {net_weight}\n"
-        
-        # Save to text file
-        file_path = save_results_to_file(result_str)
-        st.download_button("Download Results as Text File", data=open(file_path, "rb"), file_name="results.txt")
 
+    else:
+        st.write("Please upload an image to proceed.")
+        result_str = "No relevant information found in the image."
+        
+    
+        
+    # Save to text file
+    file_path = save_results_to_file(result_str)
+    st.download_button("Download Results as Text File", data=open(file_path, "rb"), file_name="results.txt")
+    
 elif selected_model == "Fruit Vision":
     st.write("**Fruit Vision**")
     option = st.radio("Choose Input Method:", ["Upload an Image", "Capture from Webcam"])
