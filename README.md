@@ -1,0 +1,1 @@
+This the Project Build for Flipkart Grid 6.0 Robotics challenge.It is the working prototype having functions like capturing the Brand name and Net weight from the product wrapper using PaddleOCR and also a fruit freshness classification model using CNN which predicts the freshness of the fruit like apple,banana and orange 
